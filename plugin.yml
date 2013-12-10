@@ -1,0 +1,6 @@
+name: '${project.name}'
+main: me.xir.stallion.Main
+version: '${project.version}'
+description: Horses! Yay!
+author: kdude63
+dev-url: '${project.url}'
