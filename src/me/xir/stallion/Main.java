@@ -1,4 +1,4 @@
-package me.xir;
+package me.xir.stallion;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
