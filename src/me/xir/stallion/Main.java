@@ -23,9 +23,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	private void giveEgg(Player player) {
-		player.getInventory().addItem(egg);
 		egg = new ItemStack(Material.MONSTER_EGG, 1, Short.parseShort("100"));
-		egg.setAmount(1);
 		ItemMeta eggMeta = egg.getItemMeta();
 		eggMeta.setDisplayName("Stallion Egg");
 		egg.setItemMeta(eggMeta);
