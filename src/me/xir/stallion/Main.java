@@ -23,14 +23,6 @@ public class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		// Register plugin with server
 		getServer().getPluginManager().registerEvents(this, this);
-
-		// Start metrics
-		try {
-			MetricsLite metrics = new MetricsLite(this);
-			metrics.start();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, e.getMessage());
-		}
 	}
 
 	private void giveEgg(Player player) {
