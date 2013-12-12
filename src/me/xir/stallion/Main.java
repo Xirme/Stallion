@@ -31,14 +31,16 @@ public class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		// Register plugin with server
 		getServer().getPluginManager().registerEvents(this, this);
+
+		// Make the egg a magical stallion egg
+		ItemMeta eggMeta = egg.getItemMeta();
+		eggMeta.setDisplayName("Stallion Egg");
+		eggMeta.setLore(new ArrayList<>(Arrays.asList("Spawns a magical stallion!")));
+		egg.setItemMeta(eggMeta);
 	}
 
 	// Gives the player a magical stallion egg.
 	private void giveEgg(Player player) {
-		ItemMeta eggMeta = egg.getItemMeta();
-		eggMeta.setDisplayName("Stallion Egg");
-		eggMeta.setLore(new ArrayList<>(Arrays.asList("Spawns a magical stallion!", "This egg belongs to " + player.getName())));
-		egg.setItemMeta(eggMeta);
 		player.getInventory().addItem(egg);
 	}
 
@@ -96,36 +98,30 @@ public class Main extends JavaPlugin implements Listener {
 			if (itemMeta.getLore().get(0) != null) {
 				if (itemMeta.getLore().get(0).equals("Spawns a magical stallion!")) {
 					Player player = e.getPlayer();
-					if (itemMeta.getLore().get(1).equals("This egg belongs to " + player.getName())) {
 
-						// Create new horse and make it a stallion.
-						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(player.getEyeLocation(), EntityType.HORSE);
-						stallion.setColor(Horse.Color.BLACK);
-						stallion.setVariant(Horse.Variant.HORSE);
-						stallion.setStyle(Horse.Style.NONE);
-						stallion.setTamed(true);
-						stallion.setOwner(player);
-						stallion.setCustomName(player.getName() + "'s Stallion");
-						stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
-//						stallion.getInventory().addItem(new ItemStack(Material.DIAMOND_BARDING, 1))
+					// Create new horse and make it a stallion.
+					Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(player.getEyeLocation(), EntityType.HORSE);
+					stallion.setColor(Horse.Color.BLACK);
+					stallion.setVariant(Horse.Variant.HORSE);
+					stallion.setStyle(Horse.Style.NONE);
+					stallion.setTamed(true);
+					stallion.setOwner(player);
+					stallion.setCustomName(player.getName() + "'s Stallion");
+					stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
+					stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
 
-						// Remove the player's stallion from the server, if it exists.
-						if (hasStallion(player)) {
-							rmStallion(player);
-						}
-
-						// Invalidate the metadata cache and replace it with the new stallion's UUID.
-						player.setMetadata("stallion_id", new FixedMetadataValue(this, stallion.getUniqueId().toString()));
-						player.getMetadata("stallion_id").get(0).invalidate();
-
-						// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
-						e.setCancelled(true);
-						player.getInventory().clear(player.getInventory().getHeldItemSlot());
-
-					} else {
-						// Yell at the player for having someone else's egg.
-						player.sendMessage(ChatColor.RED + "Why are you trying to use someone else's stallion egg?");
+					// Remove the player's stallion from the server, if it exists.
+					if (hasStallion(player)) {
+						rmStallion(player);
 					}
+
+					// Invalidate the metadata cache and replace it with the new stallion's UUID.
+					player.setMetadata("stallion_id", new FixedMetadataValue(this, stallion.getUniqueId().toString()));
+					player.getMetadata("stallion_id").get(0).invalidate();
+
+					// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
+					e.setCancelled(true);
+					player.getInventory().clear(player.getInventory().getHeldItemSlot());
 				}
 			}
 		}
