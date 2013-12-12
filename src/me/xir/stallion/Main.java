@@ -71,7 +71,6 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
-		PlayerInventory pInv = player.getInventory();
 
 		if (hasStallion(player)) {
 			rmStallion(player);
@@ -81,7 +80,6 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
-		PlayerInventory pInv = player.getInventory();
 
 		if (hasStallion(player)) {
 			rmStallion(player);
@@ -90,7 +88,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	// When the player uses the egg, spawn a new black stallion and put its UUID in the player's metadata.
-	// (Also murders any existing stallion the player may have because we only want on per player.)
+	// (Also murders any existing stallion the player may have because we only want one per player.)
 	@EventHandler
 	private void eggUseEvent(PlayerInteractEvent e) {
 		if (e.getPlayer().getItemInHand().hasItemMeta()) {
