@@ -79,7 +79,7 @@ public class Main extends JavaPlugin implements Listener {
 		// Return/give the stallion egg UNLESS the player is riding the stallion.
 		if (player.isInsideVehicle()) {
 			if (player.getVehicle() instanceof Horse) {
-				player.eject();
+				player.getVehicle().eject();
 				rmStallion(player);
 				giveEgg(player);
 			} else {
