@@ -112,8 +112,8 @@ public class Main extends JavaPlugin implements Listener {
 					}
 
 					// Invalidate the metadata cache and replace it with the new stallion's UUID.
-					player.getMetadata("stallion_id").get(0).invalidate();
 					player.setMetadata("stallion_id", new FixedMetadataValue(this, stallion.getUniqueId().toString()));
+					player.getMetadata("stallion_id").get(0).invalidate();
 
 					// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
 					e.setCancelled(true);
