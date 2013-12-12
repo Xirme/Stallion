@@ -75,7 +75,7 @@ public class Main extends JavaPlugin implements Listener {
 		Player player = e.getPlayer();
 
 		rmStallion(player);
-		if (player.getInventory().contains(egg)) {
+		if (!player.getInventory().contains(egg)) {
 			giveEgg(player);
 		}
 	}
@@ -84,7 +84,7 @@ public class Main extends JavaPlugin implements Listener {
 		Player player = e.getPlayer();
 
 		rmStallion(player);
-		if (player.getInventory().contains(egg)) {
+		if (!player.getInventory().contains(egg)) {
 			giveEgg(player);
 		}
 	}
@@ -102,6 +102,9 @@ public class Main extends JavaPlugin implements Listener {
 					Location spawnLocation = e.getClickedBlock().getRelative(BlockFace.UP).getLocation();
 
 					if (spawnLocation != null) {
+						// Remove the player's stallion from the server, if it exists.
+						rmStallion(player);
+
 						// Create new horse and make it a stallion.
 						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(spawnLocation, EntityType.HORSE);
 						stallion.setColor(Horse.Color.BLACK);
@@ -113,9 +116,6 @@ public class Main extends JavaPlugin implements Listener {
 						stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
 						stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
 						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
-
-						// Remove the player's stallion from the server, if it exists.
-						rmStallion(player);
 
 						// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
 						player.getInventory().clear(player.getInventory().getHeldItemSlot());
