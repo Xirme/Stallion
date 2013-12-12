@@ -74,12 +74,27 @@ public class Main extends JavaPlugin implements Listener {
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
-		rmStallion(player);
-		if (!player.getInventory().contains(egg)) {
-			giveEgg(player);
+		// Return/give the stallion egg UNLESS the player is riding the stallion.
+		if (player.isInsideVehicle()) {
+			if (player.getVehicle() instanceof Horse) {
+				if (!player.getVehicle().hasMetadata("is_stallion")) {
+					rmStallion(player);
+					if (!player.getInventory().contains(egg)) {
+						giveEgg(player);
+					}
+				}
+			} else {
+				rmStallion(player);
+				if (!player.getInventory().contains(egg)) {
+					giveEgg(player);
+				}
+			}
+		} else {
+			rmStallion(player);
+			if (!player.getInventory().contains(egg)) {
+				giveEgg(player);
+			}
 		}
-
-		player.sendMessage(ChatColor.YELLOW + "Your stallion returned to its egg while you were gone!");
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
@@ -88,9 +103,8 @@ public class Main extends JavaPlugin implements Listener {
 		rmStallion(player);
 		if (!player.getInventory().contains(egg)) {
 			giveEgg(player);
+			player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to your inventory because you died.");
 		}
-
-		player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to your inventory because you died.");
 	}
 
 	// When the player uses the egg, spawn a new black stallion.
@@ -145,6 +159,7 @@ public class Main extends JavaPlugin implements Listener {
 			// We don't want the stallion to drop anything.
 			e.setDroppedExp(0);
 			e.getDrops().clear();
+			stallion.getInventory().clear();
 		}
 	}
 }
