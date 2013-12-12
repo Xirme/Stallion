@@ -76,6 +76,7 @@ public class Main extends JavaPlugin implements Listener {
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
+		// TODO: Why does it still give egg when player is on a horse?
 		if (player.getVehicle() instanceof Horse) {
 			player.getVehicle().eject();
 			rmStallion(player);
@@ -113,15 +114,15 @@ public class Main extends JavaPlugin implements Listener {
 
 						// Create new horse and make it a stallion.
 						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), EntityType.HORSE);
-						stallion.setColor(Horse.Color.BLACK);
-						stallion.setVariant(Horse.Variant.HORSE);
-						stallion.setStyle(Horse.Style.NONE);
+//						stallion.setColor(Horse.Color.BLACK);
+						stallion.setVariant(Horse.Variant.SKELETON_HORSE);
+//						stallion.setStyle(Horse.Style.NONE);
 						stallion.setTamed(true);
 						stallion.setOwner(player);
 						stallion.setCustomName(player.getName() + "'s Stallion");
 						stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
 						stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
-						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
+//						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
 
 						// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
 						player.getInventory().clear(player.getInventory().getHeldItemSlot());
