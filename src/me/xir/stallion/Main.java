@@ -103,14 +103,13 @@ public class Main extends JavaPlugin implements Listener {
 				if (itemMeta.getLore().get(0).equals("Spawns a magical stallion!")) {
 
 					Player player = e.getPlayer();
-					Location spawnLocation = e.getClickedBlock().getRelative(BlockFace.UP).getLocation();
 
-					if (spawnLocation != null) {
+					if (e.getClickedBlock() != null) {
 						// Remove the player's stallion from the server, if it exists.
 						rmStallion(player);
 
 						// Create new horse and make it a stallion.
-						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(spawnLocation, EntityType.HORSE);
+						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), EntityType.HORSE);
 						stallion.setColor(Horse.Color.BLACK);
 						stallion.setVariant(Horse.Variant.HORSE);
 						stallion.setStyle(Horse.Style.NONE);
