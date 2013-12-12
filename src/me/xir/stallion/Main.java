@@ -1,26 +1,23 @@
 package me.xir.stallion;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
@@ -44,18 +41,18 @@ public class Main extends JavaPlugin implements Listener {
 		player.getInventory().addItem(egg);
 	}
 
-	// Basically just checks if a player has "stallion_id" metadata.
+	// Checks if any of the horses on the server are owned by the player.
 	private boolean hasStallion(Player player) {
-		return player.hasMetadata("stallion_id");
+		return getStallionByOwner(player) != null;
 	}
 
-	// Cycles through all the horses in the server and returns the one that matches the UUID.
+	// Cycles through all the horses in the server and returns the one who's owner matches the one specified.
 	// Returns null if none match.
 	// TODO: Figure out a more efficient way to do this.
-	private Horse getStallionById(UUID stallionId) {
+	private Horse getStallionByOwner(Player owner) {
 		for (World w : Bukkit.getServer().getWorlds()) {
 			for (Horse h : w.getEntitiesByClass(Horse.class)) {
-				if (h.getUniqueId().equals(stallionId)) {
+				if (h.getOwner() != null && h.getOwner().equals(owner)) {
 					return h;
 				}
 			}
@@ -63,10 +60,13 @@ public class Main extends JavaPlugin implements Listener {
 		return null;
 	}
 
-	// Removes the horse that matches the UUID from metadata then removes the metadata from the player.
+	// Removes the horse who's owner matches the player.
 	private void rmStallion(Player player) {
-		getStallionById(UUID.fromString(player.getMetadata("stallion_id").get(0).asString())).remove();
-		player.removeMetadata("stallion_id", this);
+		Horse stallion = getStallionByOwner(player);
+
+		if (stallion != null) {
+			stallion.remove();
+		}
 	}
 
 	// On join/respawn, kill the player's stallion if it's still alive and give a new egg.
@@ -74,22 +74,22 @@ public class Main extends JavaPlugin implements Listener {
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
-		if (hasStallion(player)) {
-			rmStallion(player);
+		rmStallion(player);
+		if (player.getInventory().contains(egg)) {
+			giveEgg(player);
 		}
-		giveEgg(player);
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
 
-		if (hasStallion(player)) {
-			rmStallion(player);
+		rmStallion(player);
+		if (player.getInventory().contains(egg)) {
+			giveEgg(player);
 		}
-		giveEgg(player);
 	}
 
-	// When the player uses the egg, spawn a new black stallion and put its UUID in the player's metadata.
+	// When the player uses the egg, spawn a new black stallion.
 	// (Also murders any existing stallion the player may have because we only want one per player.)
 	@EventHandler
 	private void eggUseEvent(PlayerInteractEvent e) {
@@ -97,34 +97,46 @@ public class Main extends JavaPlugin implements Listener {
 			ItemMeta itemMeta = e.getPlayer().getItemInHand().getItemMeta();
 			if (itemMeta.getLore().get(0) != null) {
 				if (itemMeta.getLore().get(0).equals("Spawns a magical stallion!")) {
+
 					Player player = e.getPlayer();
+					Location spawnLocation = e.getClickedBlock().getRelative(BlockFace.UP).getLocation();
 
-					// Create new horse and make it a stallion.
-					Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(player.getEyeLocation(), EntityType.HORSE);
-					stallion.setColor(Horse.Color.BLACK);
-					stallion.setVariant(Horse.Variant.HORSE);
-					stallion.setStyle(Horse.Style.NONE);
-					stallion.setTamed(true);
-					stallion.setOwner(player);
-					stallion.setCustomName(player.getName() + "'s Stallion");
-					stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
-					stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
+					if (spawnLocation != null) {
+						// Create new horse and make it a stallion.
+						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(spawnLocation, EntityType.HORSE);
+						stallion.setColor(Horse.Color.BLACK);
+						stallion.setVariant(Horse.Variant.HORSE);
+						stallion.setStyle(Horse.Style.NONE);
+						stallion.setTamed(true);
+						stallion.setOwner(player);
+						stallion.setCustomName(player.getName() + "'s Stallion");
+						stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
+						stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
+						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
 
-					// Remove the player's stallion from the server, if it exists.
-					if (hasStallion(player)) {
+						// Remove the player's stallion from the server, if it exists.
 						rmStallion(player);
+
+						// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
+						player.getInventory().clear(player.getInventory().getHeldItemSlot());
 					}
 
-					// Invalidate the metadata cache and replace it with the new stallion's UUID.
-					player.setMetadata("stallion_id", new FixedMetadataValue(this, stallion.getUniqueId().toString()));
-					player.getMetadata("stallion_id").get(0).invalidate();
-
-					// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
+					// Cancel the event since we don't want the egg to actually be used...
 					e.setCancelled(true);
-					player.getInventory().clear(player.getInventory().getHeldItemSlot());
 				}
 			}
 		}
 	}
 
+	// If a stallion dies, return it to its owner in the form of a magical stallion egg.
+	@EventHandler
+	private void stallionDeathEvent(EntityDeathEvent e) {
+		if (e.getEntity().hasMetadata("is_stallion")) {
+			Horse stallion = (Horse)e.getEntity();
+			Player owner = (Player)stallion.getOwner();
+
+			owner.getInventory().addItem(egg);
+			owner.sendMessage(ChatColor.RED + "Your stallion died and has been returned to your inventory.");
+		}
+	}
 }
