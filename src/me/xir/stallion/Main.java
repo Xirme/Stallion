@@ -76,16 +76,10 @@ public class Main extends JavaPlugin implements Listener {
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
-		// Return/give the stallion egg UNLESS the player is riding the stallion.
-		if (player.isInsideVehicle()) {
-			if (player.getVehicle() instanceof Horse) {
-				player.getVehicle().eject();
-				rmStallion(player);
-				giveEgg(player);
-			} else {
-				rmStallion(player);
-				giveEgg(player);
-			}
+		if (player.getVehicle() instanceof Horse) {
+			player.getVehicle().eject();
+			rmStallion(player);
+			giveEgg(player);
 		} else {
 			rmStallion(player);
 			giveEgg(player);
