@@ -78,6 +78,8 @@ public class Main extends JavaPlugin implements Listener {
 		if (!player.getInventory().contains(egg)) {
 			giveEgg(player);
 		}
+
+		player.sendMessage(ChatColor.YELLOW + "Your stallion returned to its egg while you were gone!");
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
@@ -87,6 +89,8 @@ public class Main extends JavaPlugin implements Listener {
 		if (!player.getInventory().contains(egg)) {
 			giveEgg(player);
 		}
+
+		player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to your inventory because you died.");
 	}
 
 	// When the player uses the egg, spawn a new black stallion.
@@ -95,7 +99,7 @@ public class Main extends JavaPlugin implements Listener {
 	private void eggUseEvent(PlayerInteractEvent e) {
 		if (e.getPlayer().getItemInHand().hasItemMeta()) {
 			ItemMeta itemMeta = e.getPlayer().getItemInHand().getItemMeta();
-			if (itemMeta.getLore().get(0) != null) {
+			if (itemMeta.getLore() != null && itemMeta.getLore().get(0) != null) {
 				if (itemMeta.getLore().get(0).equals("Spawns a magical stallion!")) {
 
 					Player player = e.getPlayer();
@@ -135,8 +139,13 @@ public class Main extends JavaPlugin implements Listener {
 			Horse stallion = (Horse)e.getEntity();
 			Player owner = (Player)stallion.getOwner();
 
+			// Return the stallion to its owner's inventory.
 			owner.getInventory().addItem(egg);
 			owner.sendMessage(ChatColor.RED + "Your stallion died and has been returned to your inventory.");
+
+			// We don't want the stallion to drop anything.
+			e.setDroppedExp(0);
+			e.getDrops().clear();
 		}
 	}
 }
