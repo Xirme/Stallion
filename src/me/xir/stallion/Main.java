@@ -38,7 +38,9 @@ public class Main extends JavaPlugin implements Listener {
 
 	// Gives the player a magical stallion egg.
 	private void giveEgg(Player player) {
-		player.getInventory().addItem(egg);
+		if (!player.getInventory().contains(egg)) {
+			player.getInventory().addItem(egg);
+		}
 	}
 
 	// Checks if any of the horses on the server are owned by the player.
@@ -77,23 +79,16 @@ public class Main extends JavaPlugin implements Listener {
 		// Return/give the stallion egg UNLESS the player is riding the stallion.
 		if (player.isInsideVehicle()) {
 			if (player.getVehicle() instanceof Horse) {
-				if (!player.getVehicle().hasMetadata("is_stallion")) {
-					rmStallion(player);
-					if (!player.getInventory().contains(egg)) {
-						giveEgg(player);
-					}
-				}
+				player.eject();
+				rmStallion(player);
+				giveEgg(player);
 			} else {
 				rmStallion(player);
-				if (!player.getInventory().contains(egg)) {
-					giveEgg(player);
-				}
+				giveEgg(player);
 			}
 		} else {
 			rmStallion(player);
-			if (!player.getInventory().contains(egg)) {
-				giveEgg(player);
-			}
+			giveEgg(player);
 		}
 	}
 	@EventHandler
@@ -139,6 +134,7 @@ public class Main extends JavaPlugin implements Listener {
 					}
 
 					// Cancel the event since we don't want the egg to actually be used...
+					// TODO: Well shit. It still spawns horses in some circumstances.
 					e.setCancelled(true);
 				}
 			}
