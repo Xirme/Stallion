@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,18 +76,29 @@ public class Main extends JavaPlugin implements Listener {
 	// On join/respawn, kill the player's stallion if it's still alive and give a new egg.
 	@EventHandler
 	private void giveEggOnJoin(PlayerJoinEvent e) {
-		Player player = e.getPlayer();
+		final Player player = e.getPlayer();
 
-//		// TODO: Why does it still give egg when player is on a horse?
-//		if (player.getVehicle() instanceof Horse) {
-//			player.getVehicle().eject();
-//			rmStallion(player);
-//			giveEgg(player);
-//		} else {
-//			rmStallion(player);
-//			giveEgg(player);
-//		}
+		getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (player.getVehicle() instanceof Horse) {
+					if (!player.getVehicle().hasMetadata("is_stallion")) {
+						if (!((Horse) player.getVehicle()).getOwner().equals(player)) {
+							rmStallion(player);
+							giveEgg(player);
 
+							player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to its egg since you left.");
+						}
+					}
+				} else {
+					rmStallion(player);
+					giveEgg(player);
+
+					player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to its egg since you left.");
+				}
+			}
+
+		}, 40l);
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
@@ -99,13 +111,6 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	@EventHandler
-	private void u_wot(AsyncPlayerChatEvent e) {
-		if (e.getPlayer().getVehicle() instanceof Horse) {
-			e.getPlayer().sendMessage(ChatColor.GREEN + "You're on a horse!");
-			giveEgg(e.getPlayer());
-		}
-	}
 	// When the player uses the egg, spawn a new black stallion.
 	// (Also murders any existing stallion the player may have because we only want one per player.)
 	@EventHandler
@@ -123,15 +128,15 @@ public class Main extends JavaPlugin implements Listener {
 
 						// Create new horse and make it a stallion.
 						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), EntityType.HORSE);
-//						stallion.setColor(Horse.Color.BLACK);
-						stallion.setVariant(Horse.Variant.SKELETON_HORSE);
-//						stallion.setStyle(Horse.Style.NONE);
+						stallion.setColor(Horse.Color.BLACK);
+						stallion.setVariant(Horse.Variant.HORSE);
+						stallion.setStyle(Horse.Style.NONE);
 						stallion.setTamed(true);
 						stallion.setOwner(player);
 						stallion.setCustomName(player.getName() + "'s Stallion");
 						stallion.getInventory().addItem(new ItemStack(Material.SADDLE, 1));
 						stallion.getInventory().addItem(new ItemStack(Material.IRON_BARDING, 1));
-//						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
+						stallion.setMetadata("is_stallion", new FixedMetadataValue(this, true));
 
 						// Cancel this event now that the stallion is spawned, and remove the egg from the player's inventory.
 						player.getInventory().clear(player.getInventory().getHeldItemSlot());
