@@ -8,10 +8,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -73,34 +75,18 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	// On join/respawn, kill the player's stallion if it's still alive and give a new egg.
+	// On join, give new players a stallion egg.
 	@EventHandler
 	private void giveEggOnJoin(PlayerJoinEvent e) {
-		final Player player = e.getPlayer();
+		if (!e.getPlayer().hasPlayedBefore()) {
+			giveEgg(e.getPlayer());
 
-		getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (player.getVehicle() instanceof Horse) {
-					if (!player.getVehicle().hasMetadata("is_stallion")) {
-						if (!((Horse) player.getVehicle()).getOwner().equals(player)) {
-							rmStallion(player);
-							giveEgg(player);
-
-							player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to its egg since you left.");
-						}
-					}
-				} else {
-					rmStallion(player);
-					giveEgg(player);
-
-					player.sendMessage(ChatColor.YELLOW + "Your stallion has returned to its egg since you left.");
-				}
-			}
-
-		}, 40l);
+			e.getPlayer().sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
+			e.getPlayer().sendMessage(ChatColor.RED + "Don't lose it, because you only get one!");
+		}
 	}
 	@EventHandler
+	// On respawn, kill the player's stallion if it's still alive and give a new egg.
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
 
@@ -165,6 +151,16 @@ public class Main extends JavaPlugin implements Listener {
 			e.setDroppedExp(0);
 			e.getDrops().clear();
 			stallion.getInventory().clear();
+		}
+	}
+
+	// Don't allow a player to modify the inventory of a stallion.
+	@EventHandler
+	private void StallionInventoryEvent(InventoryOpenEvent e) {
+		if (e.getInventory() instanceof HorseInventory) {
+			if (((Horse)e.getInventory().getHolder()).hasMetadata("is_stallion")) {
+				e.setCancelled(true);
+			}
 		}
 	}
 }
