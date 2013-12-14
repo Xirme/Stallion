@@ -84,8 +84,8 @@ public class Main extends JavaPlugin implements Listener {
 			e.getPlayer().sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
 		}
 	}
-	@EventHandler
 	// On respawn, kill the player's stallion if it's still alive and give a new egg.
+	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
 		Player player = e.getPlayer();
 
@@ -112,9 +112,9 @@ public class Main extends JavaPlugin implements Listener {
 						rmStallion(player);
 
 						// Create new horse and make it a stallion.
-						Horse stallion = (Horse)player.getLocation().getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), EntityType.HORSE);
-						stallion.setColor(Horse.Color.BLACK);
+						Horse stallion = (Horse) player.getWorld().spawnEntity(e.getClickedBlock().getRelative(BlockFace.UP).getLocation(), EntityType.HORSE);
 						stallion.setVariant(Horse.Variant.HORSE);
+						stallion.setColor(Horse.Color.BLACK);
 						stallion.setStyle(Horse.Style.NONE);
 						stallion.setTamed(true);
 						stallion.setOwner(player);
@@ -155,9 +155,9 @@ public class Main extends JavaPlugin implements Listener {
 
 	// Don't allow a player to modify the inventory of a stallion.
 	@EventHandler
-	private void StallionInventoryEvent(InventoryOpenEvent e) {
+	private void stallionInventoryEvent(InventoryOpenEvent e) {
 		if (e.getInventory() instanceof HorseInventory) {
-			if (((Horse)e.getInventory().getHolder()).hasMetadata("is_stallion")) {
+			if (((Horse) e.getInventory().getHolder()).hasMetadata("is_stallion")) {
 				e.setCancelled(true);
 			}
 		}
