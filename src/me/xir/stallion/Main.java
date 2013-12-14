@@ -76,15 +76,22 @@ public class Main extends JavaPlugin implements Listener {
 	private void giveEggOnJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
-		// TODO: Why does it still give egg when player is on a horse?
+//		// TODO: Why does it still give egg when player is on a horse?
+//		if (player.getVehicle() instanceof Horse) {
+//			player.getVehicle().eject();
+//			rmStallion(player);
+//			giveEgg(player);
+//		} else {
+//			rmStallion(player);
+//			giveEgg(player);
+//		}
+
 		if (player.getVehicle() instanceof Horse) {
-			player.getVehicle().eject();
-			rmStallion(player);
-			giveEgg(player);
-		} else {
-			rmStallion(player);
-			giveEgg(player);
+			player.sendMessage(ChatColor.GREEN + "You're on a horse!");
 		}
+
+		giveEgg(player);
+
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
