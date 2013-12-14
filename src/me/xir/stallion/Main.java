@@ -82,7 +82,6 @@ public class Main extends JavaPlugin implements Listener {
 			giveEgg(e.getPlayer());
 
 			e.getPlayer().sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
-			e.getPlayer().sendMessage(ChatColor.RED + "Don't lose it, because you only get one!");
 		}
 	}
 	@EventHandler
