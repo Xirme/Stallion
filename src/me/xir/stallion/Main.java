@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -86,12 +87,6 @@ public class Main extends JavaPlugin implements Listener {
 //			giveEgg(player);
 //		}
 
-		if (player.isInsideVehicle()) {
-			player.sendMessage(ChatColor.GREEN + "u wot");
-		}
-
-		giveEgg(player);
-
 	}
 	@EventHandler
 	private void giveEggOnRespawn(PlayerRespawnEvent e) {
@@ -104,6 +99,13 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
+	@EventHandler
+	private void u_wot(AsyncPlayerChatEvent e) {
+		if (e.getPlayer().getVehicle() instanceof Horse) {
+			e.getPlayer().sendMessage(ChatColor.GREEN + "You're on a horse!");
+			giveEgg(e.getPlayer());
+		}
+	}
 	// When the player uses the egg, spawn a new black stallion.
 	// (Also murders any existing stallion the player may have because we only want one per player.)
 	@EventHandler
