@@ -86,8 +86,8 @@ public class Main extends JavaPlugin implements Listener {
 //			giveEgg(player);
 //		}
 
-		if (player.getVehicle() instanceof Horse) {
-			player.sendMessage(ChatColor.GREEN + "You're on a horse!");
+		if (player.isInsideVehicle()) {
+			player.sendMessage(ChatColor.GREEN + "u wot");
 		}
 
 		giveEgg(player);
