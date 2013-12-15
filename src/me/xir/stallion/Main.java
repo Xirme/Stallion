@@ -47,10 +47,10 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	// Checks if any of the horses on the server are owned by the player.
-	private boolean hasStallion(Player player) {
-		return getStallionByOwner(player) != null;
-	}
+//	// Checks if any of the horses on the server are owned by the player.
+//	private boolean hasStallion(Player player) {
+//		return getStallionByOwner(player) != null;
+//	}
 
 	// Cycles through all the horses in the server and returns the one who's owner matches the one specified.
 	// Returns null if none match.
@@ -75,14 +75,32 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	// On join, give new players a stallion egg.
+	// Reset the player's stallion on join and give the player an egg.
 	@EventHandler
 	private void giveEggOnJoin(PlayerJoinEvent e) {
-		if (!e.getPlayer().hasPlayedBefore()) {
-			giveEgg(e.getPlayer());
+		final Player player = e.getPlayer();
 
-			e.getPlayer().sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
-		}
+		getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (player.hasPlayedBefore()) {
+					giveEgg(player);
+
+					player.sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
+				} else {
+					if (player.getVehicle() instanceof Horse) {
+						if (player.getVehicle().hasMetadata("is_stallion")) {
+							player.getVehicle().eject();
+							rmStallion(player);
+							giveEgg(player);
+						}
+					} else {
+						rmStallion(player);
+						giveEgg(player);
+					}
+				}
+			}
+		}, 5l);
 	}
 	// On respawn, kill the player's stallion if it's still alive and give a new egg.
 	@EventHandler
