@@ -83,7 +83,7 @@ public class Main extends JavaPlugin implements Listener {
 		getServer().getScheduler().scheduleSyncDelayedTask(this, new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (player.hasPlayedBefore()) {
+				if (!player.hasPlayedBefore()) {
 					giveEgg(player);
 
 					player.sendMessage(ChatColor.RED + "You've been given a magical stallion egg!");
